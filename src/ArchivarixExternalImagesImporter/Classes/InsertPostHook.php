@@ -31,7 +31,7 @@ class InsertPostHook
 
     $this->asyncTask = new AsyncPush();
 
-    add_action( 'ArchivarixExternalImagesImporter__bath-item', [$this, 'batchPayload'] );
+    add_action( 'ArchivarixExternalImagesImporter__bath-item', [$this, 'batchUnserialize'] );
 
     add_action( 'ArchivarixExternalImagesImporter__async', [$this, 'postHandler'], 10, 1 );
 
@@ -40,6 +40,11 @@ class InsertPostHook
     } );
   }
 
+  public function batchUnserialize( $string ) {
+	$data = unserialize( $string );
+
+	$this->batchPayload($data);
+  }
   public function batchPayload( $data )
   {
     global $wpdb;

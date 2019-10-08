@@ -6,20 +6,20 @@ namespace ArchivarixExternalImagesImporter\Classes;
 
 use ArchivarixExternalImagesImporter\Lib\WpBackgroundProcess;
 
-class BackgroundProcess extends WpBackgroundProcess
+class BackgroundProcessPosts extends WpBackgroundProcess
 {
 
   protected $cron_interval = 1;
 
-  protected $action = 'web-archive-external-picture-schedule';
+  protected $action = 'web-archive-external-posts-schedule';
 
   /**
    * @inheritDoc
    */
-  protected function task( $id )
+  protected function task( $data )
   {
 
-    do_action( 'ArchivarixExternalImagesImporter__bath-posts', $id );
+    do_action( 'ArchivarixExternalImagesImporter__bath-item', $data );
 
     return false;
   }
@@ -32,7 +32,7 @@ class BackgroundProcess extends WpBackgroundProcess
    */
   protected function complete()
   {
-    do_action( 'ArchivarixExternalImagesImporter__bath-posts-success' );
+    do_action( 'ArchivarixExternalImagesImporter__bath-item-success' );
     parent::complete();
   }
 

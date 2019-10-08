@@ -7,6 +7,7 @@ class Batch
 {
   private $options;
   private $process;
+  private $processPosts;
 
   public function __construct( $options )
   {
@@ -14,6 +15,8 @@ class Batch
     $this->options = $options;
 
     $this->process = new BackgroundProcess();
+
+    $this->processPosts = new BackgroundProcessPosts();
 
     add_action( 'ArchivarixExternalImagesImporter__bath-item-success', [$this, 'successBatch'] );
 
@@ -27,8 +30,13 @@ class Batch
     ] );
 
     $this->BackgroundProcessButton();
+
+	add_action( 'ArchivarixExternalImagesImporter__bath-posts', [ $this, 'attachPostImages' ], 10, 1 );
   }
 
+  public function attachPostImages($id){
+	 $this->postImages( $id );
+  }
 
   public function BackgroundProcessButtonLink()
   {
@@ -45,7 +53,6 @@ class Batch
 
   public function BackgroundProcessButton()
   {
-
     if ( isset( $_GET['ArchivarixExternalImagesImporter-batch'] ) ) {
       if ( current_user_can( 'manage_options' ) ) {
         if ( wp_verify_nonce( $_GET['_wpnonce'], 'ArchivarixExternalImagesImporter' ) ) {
@@ -100,15 +107,26 @@ class Batch
         if ( !empty( $images ) ) {
           if ( $this->checkExternalImages( $images ) ) {
             $i++;
-            $this->postImages( $post->ID );
+
+            $this->processPosts->push_to_queue($post->ID);
           }
         }
       }
 
+      $this->processPosts->save();
+      $this->processPosts->dispatch();
+
       if ( empty( $i ) ) {
         $this->options->updateOption( 'background_replace', 'off' );
       }
+
+      if(!empty($posts)){
+          return true;
+      }
+
     }
+
+    return false;
   }
 
   private function checkExternalImages( $images )
@@ -158,7 +176,7 @@ class Batch
     $data   = $helper->getImagesData( $post->post_content );
 
     foreach ( $data as $item ) {
-      $this->process->push_to_queue( ['item' => $item, 'ID' => $post->ID] );
+      $this->process->push_to_queue( serialize(['item' => $item, 'ID' => $post->ID]) );
     }
 
     $this->process->save();
