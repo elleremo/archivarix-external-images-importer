@@ -57,24 +57,26 @@ class InsertPostHook {
 	public function batchPayload( $data ) {
 		global $wpdb;
 
-		$this->post = (array) $data['post'];
-		$pid        = $this->post['ID'];
+		if ( isset( $data['post'] ) && ! empty( $data['post'] ) ) {
+			$this->post = (array) $data['post'];
+			$pid        = $this->post['ID'];
 
-		if ( isset( $this->post['post_type'] ) && in_array( $this->post['post_type'], $this->allowedPosts ) ) {
-			if ( isset( $data['item']['src'] ) && ! empty( $data['item']['src'] ) ) {
-				if ( ReplaceHelper::checkReplace( $data['item']['src'] ) ) {
-					$search = $data['item']['raw'];
-					if ( false !== mb_stripos( $this->post['post_content'], $search ) ) {
-						$replace = $this->ReplaceUpload(
-							$data['item']['raw'],
-							$data['item']['src'],
-							$data['item']['srcset'] );
+			if ( isset( $this->post['post_type'] ) && in_array( $this->post['post_type'], $this->allowedPosts ) ) {
+				if ( isset( $data['item']['src'] ) && ! empty( $data['item']['src'] ) ) {
+					if ( ReplaceHelper::checkReplace( $data['item']['src'] ) ) {
+						$search = $data['item']['raw'];
+						if ( false !== mb_stripos( $this->post['post_content'], $search ) ) {
+							$replace = $this->ReplaceUpload(
+								$data['item']['raw'],
+								$data['item']['src'],
+								$data['item']['srcset'] );
 
-						$query = "UPDATE $wpdb->posts SET post_content = REPLACE(post_content, '%s', '%s') WHERE ID = {$pid};";
+							$query = "UPDATE $wpdb->posts SET post_content = REPLACE(post_content, '%s', '%s') WHERE ID = {$pid};";
 
-						$query = $wpdb->prepare( $query, $search, $replace );
+							$query = $wpdb->prepare( $query, $search, $replace );
 
-						$wpdb->query( $query );
+							$wpdb->query( $query );
+						}
 					}
 				}
 			}
