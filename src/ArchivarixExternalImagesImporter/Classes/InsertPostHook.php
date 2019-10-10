@@ -64,7 +64,7 @@ class InsertPostHook {
 			if ( isset( $data['item']['src'] ) && ! empty( $data['item']['src'] ) ) {
 				if ( ReplaceHelper::checkReplace( $data['item']['src'] ) ) {
 					$search = $data['item']['raw'];
-					if ( false === mb_stripos( $this->post['post_content'], $search ) ) {
+					if ( false !== mb_stripos( $this->post['post_content'], $search ) ) {
 						$replace = $this->ReplaceUpload(
 							$data['item']['raw'],
 							$data['item']['src'],
