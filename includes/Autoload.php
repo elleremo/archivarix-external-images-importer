@@ -18,11 +18,12 @@ class Autoload
    */
   protected $prefixes = [];
 
-  /**
-   * Register loader with SPL autoloader stack.
-   *
-   * @return void
-   */
+	/**
+	 * Register loader with SPL autoloader stack.
+	 *
+	 * @return void
+	 * @throws \Exception
+	 */
   public function register()
   {
     spl_autoload_register( [$this, 'loadClass'] );

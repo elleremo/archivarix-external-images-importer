@@ -11,14 +11,14 @@ Version: 1.0.0
 License: GPLv3
 */
 
-if ( !defined( 'ABSPATH' ) ) {
-  exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 require_once( plugin_dir_path( __FILE__ ) . "includes/Autoloader.php" );
 
 if ( file_exists( plugin_dir_path( __FILE__ ) . "vendor/autoload.php" ) ) {
-  require_once( plugin_dir_path( __FILE__ ) . "vendor/autoload.php" );
+	require_once( plugin_dir_path( __FILE__ ) . "vendor/autoload.php" );
 }
 
 use ArchivarixExternalImagesImporter\Admin\Data;
@@ -33,39 +33,36 @@ use ArchivarixExternalImagesImporter\Classes\Batch;
 use ArchivarixExternalImagesImporter\Classes\InsertPostHook;
 use ArchivarixExternalImagesImporter\Classes\Renamer;
 
-class ArchivarixExternalImagesImporter extends Wrap
-{
-  public        $version = '1.0.0';
-  public static $textdomain;
-  public        $filePath;
-  public        $options;
+class ArchivarixExternalImagesImporter extends Wrap {
+	public $version = '1.0.0';
+	public static $textdomain;
+	public $filePath;
+	public $options;
 
-  public function __construct()
-  {
-    $this->filePath   = __FILE__;
-    self::$textdomain = $this->setTextdomain();
+	public function __construct() {
+		$this->filePath   = __FILE__;
+		self::$textdomain = $this->setTextdomain();
 
-    new Settings( $this );
-    $this->options = new Data( $this );
-    new Renamer( $this->options );
+		new Settings( $this );
+		$this->options = new Data( $this );
+		new Renamer( $this->options );
 
-    if ( 'on' === $this->options->getOption( 'temporarily_disable_auto_upload' ) ) {
 
-      $insertClass = new InsertPostHook( $this->options );
-      $insertClass->applySavePostFilter();
+		if ( 'on' === $this->options->getOption( 'temporarily_disable_auto_upload' ) ) {
 
-      new addCdn( $this->options );
+			$insertClass = new InsertPostHook( $this->options );
+			$insertClass->applySavePostFilter();
 
-      new Batch( $this->options );
+			new addCdn( $this->options );
 
-    }
-  }
+			new Batch( $this->options );
+		}
+	}
 
 }
 
-function ArchivarixExternalImagesImporter__init()
-{
-  new ArchivarixExternalImagesImporter();
+function ArchivarixExternalImagesImporter__init() {
+	new ArchivarixExternalImagesImporter();
 }
 
 add_action( 'plugins_loaded', 'ArchivarixExternalImagesImporter__init', 30 );

@@ -3,256 +3,255 @@
 namespace ArchivarixExternalImagesImporter\Classes;
 
 
-class InsertPostHook
-{
+use ArchivarixExternalImagesImporter\Background\AsyncPush;
 
-  private static $baseSize = 'full';
-  private $post;
-  private $imageNotFoundAction;
-  private $allowedPosts = [];
-  private $excludeDomains;
-  private $maxImageWidth;
-  private $maxImageHeight;
-  private $imageSource;
-  private $pushStrategy;
+class InsertPostHook {
 
-  private $asyncTask;
+	private static $baseSize = 'full';
+	private $post;
+	private $imageNotFoundAction;
+	private $allowedPosts = [];
+	private $excludeDomains;
+	private $maxImageWidth;
+	private $maxImageHeight;
+	private $imageSource;
+	private $pushStrategy;
 
-  public function __construct( $options )
-  {
+	private $asyncTask;
 
-    $this->imageNotFoundAction = $options->getOption( 'replace_image', 'keep' );
-    $this->allowedPosts        = $options->getOption( 'posts_types', [] );
-    $this->maxImageWidth       = $options->getOption( 'image_width', 0 );
-    $this->maxImageHeight      = $options->getOption( 'image_height', 0 );
-    $this->excludeDomains      = $this->getExcludeDomains( $options->getOption( 'exclude_domains', false ) );
-    $this->imageSource         = $options->getOption( 'image_source', 'site' );
-    $this->pushStrategy        = $options->getOption( 'push_strategy', 'on_push' );
+	public function __construct( $options ) {
 
-    $this->asyncTask = new AsyncPush();
+		$this->imageNotFoundAction = $options->getOption( 'replace_image', 'keep' );
+		$this->allowedPosts        = $options->getOption( 'posts_types', [] );
+		$this->maxImageWidth       = $options->getOption( 'image_width', 0 );
+		$this->maxImageHeight      = $options->getOption( 'image_height', 0 );
+		$this->excludeDomains      = $this->getExcludeDomains( $options->getOption( 'exclude_domains', false ) );
+		$this->imageSource         = $options->getOption( 'image_source', 'site' );
+		$this->pushStrategy        = $options->getOption( 'push_strategy', 'on_push' );
 
-    add_action( 'ArchivarixExternalImagesImporter__bath-item', [$this, 'batchUnserialize'] );
+		$this->asyncTask = new AsyncPush();
 
-    add_action( 'ArchivarixExternalImagesImporter__async', [$this, 'postHandler'], 10, 1 );
+		add_action( 'ArchivarixExternalImagesImporter__bath-item', [ $this, 'batchPayloadData' ] );
 
-    add_action( 'wp_insert_post', function () {
-      add_action( 'ArchivarixExternalImagesImporter__async', [$this, 'postHandler'], 10, 1 );
-    } );
-  }
+		add_action( 'ArchivarixExternalImagesImporter__async', [ $this, 'postHandler' ], 10, 1 );
 
-  public function batchUnserialize( $string ) {
-	$data = unserialize( $string );
+		add_action( 'wp_insert_post', function () {
+			add_action( 'ArchivarixExternalImagesImporter__async', [ $this, 'postHandler' ], 10, 1 );
+		} );
+	}
 
-	$this->batchPayload($data);
-  }
-  public function batchPayload( $data )
-  {
-    global $wpdb;
+	public function applySavePostFilter() {
+		add_filter( 'wp_insert_post_data', [ $this, 'savePost' ], 10, 2 );
+	}
 
-    $this->post = get_post($data['ID'],ARRAY_A);
-    $pid        = $this->post['ID'];
+	public function batchPayloadData( $string ) {
+		$data = unserialize( $string );
 
-    if ( isset( $this->post['post_type'] ) && in_array( $this->post['post_type'], $this->allowedPosts ) ) {
-      if ( isset( $data['item']['src'] ) && !empty( $data['item']['src'] ) ) {
-        if ( ReplaceHelper::checkReplace( $data['item']['src'] ) ) {
-          $search  = $data['item']['raw'];
-          $replace = $this->ReplaceUpload(
-            $data['item']['raw'],
-            $data['item']['src'],
-            $data['item']['srcset'] );
+		if ( is_numeric( $data['post'] ) ) {
+			$data['post'] = get_post( $data['post'], ARRAY_A );
+		}
 
-          $query = "UPDATE $wpdb->posts SET post_content = REPLACE(post_content, '%s', '%s') WHERE ID = {$pid};";
+		$this->batchPayload( $data );
+	}
 
-          $query = $wpdb->prepare( $query, $search, $replace );
+	public function batchPayload( $data ) {
+		global $wpdb;
 
-          $wpdb->query( $query );
-        }
-      }
-    }
-  }
+		$this->post = (array) $data['post'];
+		$pid        = $this->post['ID'];
 
-  public function payload( $string, $imageData )
-  {
-    $tmp = [];
+		if ( isset( $this->post['post_type'] ) && in_array( $this->post['post_type'], $this->allowedPosts ) ) {
+			if ( isset( $data['item']['src'] ) && ! empty( $data['item']['src'] ) ) {
+				if ( ReplaceHelper::checkReplace( $data['item']['src'] ) ) {
+					$search = $data['item']['raw'];
+					if ( mb_stripos( $this->post['post_content'], $search ) ) {
+						$replace = $this->ReplaceUpload(
+							$data['item']['raw'],
+							$data['item']['src'],
+							$data['item']['srcset'] );
 
-    foreach ( $imageData as $item ) {
-      if ( isset( $item['src'] ) && !empty( $item['src'] ) ) {
-        if ( ReplaceHelper::checkReplace( $item['src'] ) ) {
-          $tmp['search'][]  = $item['raw'];
-          $tmp['replace'][] = $this->ReplaceUpload( $item['raw'], $item['src'], $item['srcset'] );
-        }
-      }
-    }
+						$query = "UPDATE $wpdb->posts SET post_content = REPLACE(post_content, '%s', '%s') WHERE ID = {$pid};";
 
-    if ( !empty( $tmp['search'] ) ) {
-      $string = str_replace( $tmp['search'], $tmp['replace'], $string );
-    }
+						$query = $wpdb->prepare( $query, $search, $replace );
 
-    return $string;
-  }
+						$wpdb->query( $query );
+					}
+				}
+			}
+		}
+	}
 
-  public function postHandler( $id )
-  {
-    $post       = get_post( $id, ARRAY_A );
-    $this->post = $post;
+	public function payload( $string, $imageData ) {
+		$tmp = [];
 
-    if ( in_array( $post['post_type'], $this->allowedPosts ) ) {
-      $content = $post['post_content'];
+		foreach ( $imageData as $item ) {
+			if ( isset( $item['src'] ) && ! empty( $item['src'] ) ) {
+				if ( ReplaceHelper::checkReplace( $item['src'] ) ) {
+					$tmp['search'][]  = $item['raw'];
+					$tmp['replace'][] = $this->ReplaceUpload( $item['raw'], $item['src'], $item['srcset'] );
+				}
+			}
+		}
 
-      $helper = new ExtractHelpers();
-      $data   = $helper->getImagesData( $content );
+		if ( ! empty( $tmp['search'] ) ) {
+			$string = str_replace( $tmp['search'], $tmp['replace'], $string );
+		}
 
-      $content = $this->payload( $content, $data );
+		return $string;
+	}
 
-      $o = wp_update_post( ['ID' => $id, 'post_content' => $content] );
+	public function postHandler( $id ) {
+		$post       = get_post( $id, ARRAY_A );
+		$this->post = $post;
+
+		if ( in_array( $post['post_type'], $this->allowedPosts ) ) {
+			$content = $post['post_content'];
+
+			$helper = new ExtractHelpers();
+			$data   = $helper->getImagesData( $content );
+
+			$content = $this->payload( $content, $data );
+
+			$o = wp_update_post( [ 'ID' => $id, 'post_content' => $content ] );
 
 
-      return $o;
-    }
+			return $o;
+		}
 
-    return false;
-  }
+		return false;
+	}
 
-  public function applySavePostFilter()
-  {
-    add_filter( 'wp_insert_post_data', [$this, 'savePost'], 10, 2 );
-  }
 
-  public function getExcludeDomains( $string )
-  {
+	public function getExcludeDomains( $string ) {
 
-    $out = [];
+		$out = [];
 
-    if ( false !== $string ) {
-      $out = explode( PHP_EOL, (string)$string );
-      $out = array_map( function ( $str ) {
-        $str = trim( $str );
+		if ( false !== $string ) {
+			$out = explode( PHP_EOL, (string) $string );
+			$out = array_map( function ( $str ) {
+				$str = trim( $str );
 
-        $str = UrlHelper::getHost( $str );
+				$str = UrlHelper::getHost( $str );
 
-        return $str;
-      }, $out );
-    }
+				return $str;
+			}, $out );
+		}
 
-    return $out;
-  }
+		return $out;
+	}
 
-  /**
-   * @param $uploader Uploader
-   * @param $searchUrl
-   *
-   * @return mixed
-   */
-  public function switchSource( $uploader, $searchUrl )
-  {
+	/**
+	 * @param $uploader Uploader
+	 * @param $searchUrl
+	 *
+	 * @return mixed
+	 */
+	public function switchSource( $uploader, $searchUrl ) {
 
-    if ( 'web_archive' == $this->imageSource ) {
+		if ( 'web_archive' == $this->imageSource ) {
 
-      // загрузка из вебархива
-      $timeStamp = strtotime( $this->post['post_date'] );
+			// загрузка из вебархива
+			$timeStamp = strtotime( $this->post['post_date'] );
 
-      return $uploader->loadInWebArchive( $searchUrl, $timeStamp, $this->post['ID'] );
+			return $uploader->loadInWebArchive( $searchUrl, $timeStamp, $this->post['ID'] );
 
-    } elseif ( 'web_archive__site' == $this->imageSource ) {
+		} elseif ( 'web_archive__site' == $this->imageSource ) {
 
-      // загрузка из вебархива в случае неудачи с сайта
-      $timeStamp = strtotime( $this->post['post_date'] );
-      $idImage   = $uploader->loadInWebArchive( $searchUrl, $timeStamp, $this->post['ID'] );
-      if ( $uploader->errorHandler( $idImage ) ) {
-        $idImage = $uploader->sideLoadWrapper( $searchUrl, $this->post['ID'] );
-      }
+			// загрузка из вебархива в случае неудачи с сайта
+			$timeStamp = strtotime( $this->post['post_date'] );
+			$idImage   = $uploader->loadInWebArchive( $searchUrl, $timeStamp, $this->post['ID'] );
+			if ( $uploader->errorHandler( $idImage ) ) {
+				$idImage = $uploader->sideLoadWrapper( $searchUrl, $this->post['ID'] );
+			}
 
-      return $idImage;
+			return $idImage;
 
-    } elseif ( 'web_site__archive' == $this->imageSource ) {
+		} elseif ( 'web_site__archive' == $this->imageSource ) {
 
-      // загрузка с сайта в случае неудачи из вебархива
-      $idImage = $uploader->sideLoadWrapper( $searchUrl, $this->post['ID'] );
+			// загрузка с сайта в случае неудачи из вебархива
+			$idImage = $uploader->sideLoadWrapper( $searchUrl, $this->post['ID'] );
 
-      if ( $uploader->errorHandler( $idImage ) ) {
-        $timeStamp = strtotime( $this->post['post_date'] );
-        $idImage   = $uploader->loadInWebArchive( $searchUrl, $timeStamp, $this->post['ID'] );
-      }
+			if ( $uploader->errorHandler( $idImage ) ) {
+				$timeStamp = strtotime( $this->post['post_date'] );
+				$idImage   = $uploader->loadInWebArchive( $searchUrl, $timeStamp, $this->post['ID'] );
+			}
 
-      return $idImage;
-    }
+			return $idImage;
+		}
 
-    // загрузка с сайта напрямую
-    return $uploader->sideLoadWrapper( $searchUrl, $this->post['ID'] );
-  }
+		// загрузка с сайта напрямую
+		return $uploader->sideLoadWrapper( $searchUrl, $this->post['ID'] );
+	}
 
-  public function ReplaceUpload( $string, $searchUrl, $srcset = false )
-  {
+	public function ReplaceUpload( $string, $searchUrl, $srcset = false ) {
 
-    if ( filter_var( $searchUrl, FILTER_VALIDATE_URL ) ) {
+		if ( filter_var( $searchUrl, FILTER_VALIDATE_URL ) ) {
 
-      if ( in_array( UrlHelper::getHost( $searchUrl ), $this->excludeDomains ) ) {
-        return $string;
-      }
+			if ( in_array( UrlHelper::getHost( $searchUrl ), $this->excludeDomains ) ) {
+				return $string;
+			}
 
-      $uploader = new Uploader( $this->maxImageWidth, $this->maxImageHeight );
+			$uploader = new Uploader( $this->maxImageWidth, $this->maxImageHeight );
 
-      $idImage = $this->switchSource( $uploader, $searchUrl );
+			$idImage = $this->switchSource( $uploader, $searchUrl );
 
-      if ( $uploader->errorHandler( $idImage ) ) {
-        if ( 'keep' === $this->imageNotFoundAction ) {
-          return $string;
-        } else {
-          return '';
-        }
-      }
+			if ( $uploader->errorHandler( $idImage ) ) {
+				if ( 'keep' === $this->imageNotFoundAction ) {
+					return $string;
+				} else {
+					return '';
+				}
+			}
 
-      if ( is_numeric( $idImage ) ) {
-        $src    = wp_get_attachment_image_src( $idImage, self::$baseSize );
-        $string = ReplaceHelper::replaceAttributeValue( 'src', $src[0], $string );
-        $meta   = wp_get_attachment_metadata( $idImage );
+			if ( is_numeric( $idImage ) ) {
+				$src    = wp_get_attachment_image_src( $idImage, self::$baseSize );
+				$string = ReplaceHelper::replaceAttributeValue( 'src', $src[0], $string );
+				$meta   = wp_get_attachment_metadata( $idImage );
 
-        if ( !empty( $srcset ) ) {
-          $sizes  = wp_get_attachment_image_sizes( $idImage, 'full' );
-          $srcset = wp_get_attachment_image_srcset( $idImage, 'full' );
-          $string = ReplaceHelper::replaceAttributeValue( 'srcset', $srcset, $string );
-          $string = ReplaceHelper::replaceAttributeValue( 'sizes', $sizes, $string );
-          $string = ReplaceHelper::replaceAttributeValue( 'width', $meta['width'], $string );
-          $string = ReplaceHelper::replaceAttributeValue( 'height', $meta['height'], $string );
-        }
-      }
-    }
+				if ( ! empty( $srcset ) ) {
+					$sizes  = wp_get_attachment_image_sizes( $idImage, 'full' );
+					$srcset = wp_get_attachment_image_srcset( $idImage, 'full' );
+					$string = ReplaceHelper::replaceAttributeValue( 'srcset', $srcset, $string );
+					$string = ReplaceHelper::replaceAttributeValue( 'sizes', $sizes, $string );
+					$string = ReplaceHelper::replaceAttributeValue( 'width', $meta['width'], $string );
+					$string = ReplaceHelper::replaceAttributeValue( 'height', $meta['height'], $string );
+				}
+			}
+		}
 
-    return $string;
-  }
+		return $string;
+	}
 
-  public function savePost( $data, $postArray )
-  {
-    if (
-      wp_is_post_revision( $postArray['ID'] ) ||
-      wp_is_post_autosave( $postArray['ID'] ) ||
-      wp_doing_ajax() ||
-      ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) {
-      return $data;
-    }
+	public function savePost( $data, $postArray ) {
+		if (
+			wp_is_post_revision( $postArray['ID'] ) ||
+			wp_is_post_autosave( $postArray['ID'] ) ||
+			wp_doing_ajax() ||
+			( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) {
+			return $data;
+		}
 
-    if ( !in_array( $data['post_type'], $this->allowedPosts ) ) {
-      return $data;
-    }
+		if ( ! in_array( $data['post_type'], $this->allowedPosts ) ) {
+			return $data;
+		}
 
-    if ( 'on_push' == $this->pushStrategy ) {
-      $this->post           = $postArray;
-      $data['post_content'] = $this->save( wp_unslash( $data['post_content'] ) );
-    } else {
-      $this->asyncTask->push_to_queue( intval( $postArray['ID'] ) );
-      $this->asyncTask->save();
-      $this->asyncTask->dispatch();
-    }
+		if ( 'on_push' == $this->pushStrategy ) {
+			$this->post           = $postArray;
+			$data['post_content'] = $this->save( wp_unslash( $data['post_content'] ) );
+		} else {
+			$this->asyncTask->push_to_queue( intval( $postArray['ID'] ) );
+			$this->asyncTask->save();
+			$this->asyncTask->dispatch();
+		}
 
-    return $data;
-  }
+		return $data;
+	}
 
-  public function save( $content )
-  {
-    $helper = new ExtractHelpers();
-    $data   = $helper->getImagesData( $content );
+	public function save( $content ) {
+		$helper = new ExtractHelpers();
+		$data   = $helper->getImagesData( $content );
 
-    return $this->payload( $content, $data );
-  }
+		return $this->payload( $content, $data );
+	}
 
 }

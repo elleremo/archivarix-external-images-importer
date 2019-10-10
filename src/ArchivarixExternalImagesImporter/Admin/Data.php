@@ -3,7 +3,6 @@
 
 namespace ArchivarixExternalImagesImporter\Admin;
 
-
 class Data
 {
 

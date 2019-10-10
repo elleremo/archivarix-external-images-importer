@@ -1,5 +1,6 @@
 <?php
 
+
 namespace ArchivarixExternalImagesImporter\Admin;
 
 
@@ -31,6 +32,19 @@ class Settings
     $this->initFormFields();
     $this->initSettings();
     $this->initHooks();
+		add_action( 'ArchivarixExternalImagesImporter__background-process-start-link', [ $this, 'BgButtonLink' ] );
+	}
+
+	public function BgButtonLink() {
+		?>
+        <a href="<?php echo wp_nonce_url(
+			'?page=ArchivarixExternalImagesImporter&ArchivarixExternalImagesImporter-batch',
+			'ArchivarixExternalImagesImporter'
+		); ?>"
+           class="button ">
+			<?php _e( 'Background processing', 'ArchivarixExternalImagesImporter' ); ?>
+        </a>
+		<?php
   }
 
   public function initHooks()
@@ -69,8 +83,8 @@ class Settings
     $ctlActions = [
       'settings' =>
         '<a href="' . admin_url( 'options-general.php?page=' . self::$page ) .
-        '" aria-label="' . esc_attr__( 'Settings', 'ArchivarixExternalImagesImporter' ) . '">' .
-        esc_html__( 'Settings', 'ArchivarixExternalImagesImporter' ) . '</a>',
+				'" aria-label="' . esc_attr__( 'Settings', 'ArchivarixExternalImagesImporter' ) . '">' .
+				esc_html__( 'Settings', 'ArchivarixExternalImagesImporter' ) . '</a>',
     ];
 
     return array_merge( $ctlActions, $actions );
@@ -152,7 +166,7 @@ class Settings
       <h2 id="title">
         <?php
         // Admin panel title.
-        echo( esc_html( __( 'Archivarix External Images Importer Options', 'ArchivarixExternalImagesImporter' ) ) );
+				echo( esc_html( __( 'WebArchive External Pictures Options', 'ArchivarixExternalImagesImporter' ) ) );
         ?>
       </h2>
 
@@ -164,7 +178,7 @@ class Settings
         <p class="submit">
           <?php
           submit_button( null, 'primary', 'submit', false );
-          do_action( 'ArchivarixExternalImagesImporter__background-process-start-link' );
+					do_action( 'ArchivarixExternalImagesImporter__background-process-start-link' );
           ?>
         </p>
       </form>
@@ -183,32 +197,32 @@ class Settings
     }
     add_settings_section(
       'domain_settings_section',
-      __( 'Domain settings', 'ArchivarixExternalImagesImporter' ),
+			__( 'Domain settings', 'ArchivarixExternalImagesImporter' ),
       [$this, 'sectionArguments'],
       self::$page
     );
     add_settings_section(
       'post_types_settings_section',
-      __( 'Post types', 'ArchivarixExternalImagesImporter' ),
+			__( 'Post types', 'ArchivarixExternalImagesImporter' ),
       [$this, 'sectionArguments'],
       self::$page
     );
     add_settings_section(
       'file_settings_section',
-      __( 'File settings', 'ArchivarixExternalImagesImporter' ),
+			__( 'File settings', 'ArchivarixExternalImagesImporter' ),
       [$this, 'sectionArguments'],
       self::$page
     );
     add_settings_section(
       'image_size_settings_section',
-      __( 'Image size', 'ArchivarixExternalImagesImporter' ),
+			__( 'Image size', 'ArchivarixExternalImagesImporter' ),
       [$this, 'sectionArguments'],
       self::$page
     );
 
     add_settings_section(
       'downloading_settings_section',
-      __( 'Downloading settings', 'ArchivarixExternalImagesImporter' ),
+			__( 'Downloading settings', 'ArchivarixExternalImagesImporter' ),
       [$this, 'sectionArguments'],
       self::$page
     );
@@ -233,7 +247,7 @@ class Settings
     };
     $this->formFields = [
       'base_url' => [
-        'label' => __( 'Base URL:', 'ArchivarixExternalImagesImporter' ),
+				'label'        => __( 'Base URL:', 'ArchivarixExternalImagesImporter' ),
         'section' => 'domain_settings_section',
         'type' => 'text',
         'placeholder' => '',
@@ -242,7 +256,7 @@ class Settings
         'default' => home_url(),
       ],
       'exclude_domains' => [
-        'label' => __( 'Exclude Domains:', 'ArchivarixExternalImagesImporter' ),
+				'label'        => __( 'Exclude Domains:', 'ArchivarixExternalImagesImporter' ),
         'section' => 'domain_settings_section',
         'type' => 'textarea',
         'placeholder' => '',
@@ -251,7 +265,7 @@ class Settings
         'default' => '',
       ],
       'posts_types' => [
-        'label' => __( 'Posts types:', 'ArchivarixExternalImagesImporter' ),
+				'label'        => __( 'Posts types:', 'ArchivarixExternalImagesImporter' ),
         'section' => 'post_types_settings_section',
         'type' => 'multiple',
         'options' => $postsTypes(),
@@ -261,7 +275,7 @@ class Settings
         'default' => '',
       ],
       'image_alt' => [
-        'label' => __( 'Alt Name:', 'ArchivarixExternalImagesImporter' ),
+				'label'        => __( 'Alt Name:', 'ArchivarixExternalImagesImporter' ),
         'section' => 'file_settings_section',
         'type' => 'text',
         'placeholder' => '',
@@ -270,7 +284,7 @@ class Settings
         'default' => '%day%-%month%-%year%',
       ],
       'image_name' => [
-        'label' => __( 'Image Name:', 'ArchivarixExternalImagesImporter' ),
+				'label'        => __( 'Image Name:', 'ArchivarixExternalImagesImporter' ),
         'section' => 'file_settings_section',
         'type' => 'text',
         'placeholder' => '',
@@ -279,45 +293,45 @@ class Settings
         'default' => '%filename%-%random%',
       ],
       'image_width' => [
-        'label' => __( 'Max width:', 'ArchivarixExternalImagesImporter' ),
+				'label'        => __( 'Max width:', 'ArchivarixExternalImagesImporter' ),
         'section' => 'image_size_settings_section',
         'type' => 'number',
         'placeholder' => '',
         'helper' => '',
-        'supplemental' => __( 'Max width upload image', 'ArchivarixExternalImagesImporter' ),
-        'default' => '2600',
+				'supplemental' => __( 'Max width upload image', 'ArchivarixExternalImagesImporter' ),
+				'default'      => '',
       ],
       'image_height' => [
-        'label' => __( 'Max height:', 'ArchivarixExternalImagesImporter' ),
+				'label'        => __( 'Max height:', 'ArchivarixExternalImagesImporter' ),
         'section' => 'image_size_settings_section',
         'type' => 'number',
         'placeholder' => '',
         'helper' => '',
-        'supplemental' => __( 'Max height upload image', 'ArchivarixExternalImagesImporter' ),
-        'default' => '2600',
+				'supplemental' => __( 'Max height upload image', 'ArchivarixExternalImagesImporter' ),
+				'default'      => '',
       ],
       'replace_image' => [
-        'label' => __( 'Image action:', 'ArchivarixExternalImagesImporter' ),
+				'label'        => __( 'Image action:', 'ArchivarixExternalImagesImporter' ),
         'section' => 'downloading_settings_section',
         'type' => 'select',
         'options' => [
-          'keep' => __( 'Keep', 'ArchivarixExternalImagesImporter' ),
-          'remove' => __( 'Remove', 'ArchivarixExternalImagesImporter' ),
+					'keep'   => __( 'Keep', 'ArchivarixExternalImagesImporter' ),
+					'remove' => __( 'Remove', 'ArchivarixExternalImagesImporter' )
         ],
         'placeholder' => '',
         'helper' => '',
-        'supplemental' => __( 'Action if no image is found', 'ArchivarixExternalImagesImporter' ),
+				'supplemental' => __( 'Action if no image is found', 'ArchivarixExternalImagesImporter' ),
         'default' => '',
       ],
       'image_source' => [
-        'label' => __( 'Image source:', 'ArchivarixExternalImagesImporter' ),
+				'label'        => __( 'Image source:', 'ArchivarixExternalImagesImporter' ),
         'section' => 'downloading_settings_section',
         'type' => 'select',
         'options' => [
-          'site' => __( 'Website only', 'ArchivarixExternalImagesImporter' ),
-          'web_archive' => __( 'Web-Archive only', 'ArchivarixExternalImagesImporter' ),
-          'web_archive__site' => __( 'Web-Archive in case of a website failure', 'ArchivarixExternalImagesImporter' ),
-          'web_site__archive' => __( 'Website in case of a Web-Archive failure', 'ArchivarixExternalImagesImporter' ),
+					'site'              => __( 'Site', 'ArchivarixExternalImagesImporter' ),
+					'web_archive'       => __( 'Web archive', 'ArchivarixExternalImagesImporter' ),
+					'web_archive__site' => __( 'Web archive in case of site failure', 'ArchivarixExternalImagesImporter' ),
+					'web_site__archive' => __( 'Web site in case of archive failure', 'ArchivarixExternalImagesImporter' ),
         ],
         'placeholder' => '',
         'helper' => '',
@@ -325,29 +339,29 @@ class Settings
         'default' => '',
       ],
       'push_strategy' => [
-        'label' => __( 'Push strategy:', 'ArchivarixExternalImagesImporter' ),
+				'label'        => __( 'Push strategy:', 'ArchivarixExternalImagesImporter' ),
         'section' => 'downloading_settings_section',
         'type' => 'select',
         'options' => [
-          'on_push' => __( 'On push', 'ArchivarixExternalImagesImporter' ),
-          'after_push' => __( 'After push', 'ArchivarixExternalImagesImporter' ),
+					'on_push'    => __( 'On push', 'ArchivarixExternalImagesImporter' ),
+					'after_push' => __( 'After push', 'ArchivarixExternalImagesImporter' ),
         ],
         'placeholder' => '',
         'helper' => '',
-        'supplemental' => __( 'Method of loading files when saving a post, immediately or after', 'ArchivarixExternalImagesImporter' ),
+				'supplemental' => __( 'Method of loading files when saving a post, immediately or after', 'ArchivarixExternalImagesImporter' ),
         'default' => 'on_push',
       ],
       'temporarily_disable_auto_upload' => [
-        'label' => __( 'Auto download', 'ArchivarixExternalImagesImporter' ),
+				'label'        => __( 'Auto download', 'ArchivarixExternalImagesImporter' ),
         'section' => 'downloading_settings_section',
         'type' => 'select',
         'options' => [
-          'on' => __( 'On', 'ArchivarixExternalImagesImporter' ),
-          'off' => __( 'Off', 'ArchivarixExternalImagesImporter' ),
+					'on'  => __( 'On', 'ArchivarixExternalImagesImporter' ),
+					'off' => __( 'Off', 'ArchivarixExternalImagesImporter' )
         ],
         'placeholder' => '',
         'helper' => '',
-        'supplemental' => __( 'Temporarily leave the download', 'ArchivarixExternalImagesImporter' ),
+				'supplemental' => __( 'Temporarily leave the download', 'ArchivarixExternalImagesImporter' ),
         'default' => 'on',
       ],
     ];
@@ -414,7 +428,7 @@ class Settings
         break;
       case 'textarea':
         printf(
-          '<textarea name="%1$s[%2$s]" id="%2$s" placeholder="%3$s" rows="5" cols="50" class="regular-text">%4$s</textarea>',
+					'<textarea name="%1$s[%2$s]" id="%2$s" placeholder="%3$s" rows="5" cols="50">%4$s</textarea>',
           esc_html( self::$nameOption ),
           esc_attr( $arguments['field_id'] ),
           esc_attr( $arguments['placeholder'] ),

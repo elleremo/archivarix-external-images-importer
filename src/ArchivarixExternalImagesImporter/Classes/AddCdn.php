@@ -5,7 +5,6 @@ namespace ArchivarixExternalImagesImporter\Classes;
 
 class AddCdn
 {
-
   private $replaceHost;
 
   public function __construct( $options )
