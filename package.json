@@ -1,0 +1,27 @@
+{
+  "name": "archivarix-external-images-importer",
+  "version": "1.0.0",
+  "description": "=== Archivarix External Images Importer === Contributors: archivarix Donate link: https://wordpressfoundation.org/donate/ Tags: external, images, importer, wordpress, archive, archivarix Requires at least: 5.0 Tested up to: 5.2 Requires PHP: 5.6 Stable tag: 1.0.0 License: GPLv3 or later License URI: https://www.gnu.org/licenses/gpl-3.0.html",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/petrozavodsky/archivarix-external-images-importer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/petrozavodsky/archivarix-external-images-importer/issues"
+  },
+  "homepage": "https://github.com/petrozavodsky/archivarix-external-images-importer#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-load-plugins": "^2.0.1",
+    "gulp-rename": "^1.4.0",
+    "gulp-sort": "^2.0.0",
+    "gulp-wp-pot": "^2.3.5",
+    "path": "^0.12.7"
+  }
+}
