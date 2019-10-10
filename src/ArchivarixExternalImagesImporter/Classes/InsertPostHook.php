@@ -31,7 +31,7 @@ class InsertPostHook {
 
 		$this->asyncTask = new AsyncPush();
 
-		add_action( 'ArchivarixExternalImagesImporter__bath-item', [ $this, 'batchPayloadData' ] );
+		add_action( 'ArchivarixExternalImagesImporter__bath-item', [ $this, 'batchPayloadData' ], 10, 1 );
 
 		add_action( 'ArchivarixExternalImagesImporter__async', [ $this, 'postHandler' ], 10, 1 );
 
@@ -64,7 +64,7 @@ class InsertPostHook {
 			if ( isset( $data['item']['src'] ) && ! empty( $data['item']['src'] ) ) {
 				if ( ReplaceHelper::checkReplace( $data['item']['src'] ) ) {
 					$search = $data['item']['raw'];
-					if ( mb_stripos( $this->post['post_content'], $search ) ) {
+					if ( false === mb_stripos( $this->post['post_content'], $search ) ) {
 						$replace = $this->ReplaceUpload(
 							$data['item']['raw'],
 							$data['item']['src'],
