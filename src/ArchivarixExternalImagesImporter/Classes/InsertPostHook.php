@@ -123,7 +123,6 @@ class InsertPostHook {
 		return false;
 	}
 
-
 	public function getExcludeDomains( $string ) {
 
 		$out = [];
@@ -150,12 +149,15 @@ class InsertPostHook {
 	 */
 	public function switchSource( $uploader, $searchUrl ) {
 
+
 		if ( 'web_archive' == $this->imageSource ) {
 
 			// загрузка из вебархива
 			$timeStamp = strtotime( $this->post['post_date'] );
 
-			return $uploader->loadInWebArchive( $searchUrl, $timeStamp, $this->post['ID'] );
+			$idImage = $uploader->loadInWebArchive( $searchUrl, $timeStamp, $this->post['ID'] );
+
+			return $idImage;
 
 		} elseif ( 'web_archive__site' == $this->imageSource ) {
 
@@ -197,7 +199,7 @@ class InsertPostHook {
 
 			$idImage = $this->switchSource( $uploader, $searchUrl );
 
-			if ( $uploader->errorHandler( $idImage ) ) {
+			if ( is_wp_error( $idImage ) ) {
 				if ( 'keep' === $this->imageNotFoundAction ) {
 					return $string;
 				} else {

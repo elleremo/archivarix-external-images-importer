@@ -6,18 +6,26 @@ namespace ArchivarixExternalImagesImporter\Classes;
 use ArchivarixExternalImagesImporter\Background\BackgroundProcess;
 
 class Batch {
+
 	private $options;
+
 	private $process;
+
+	private $stack = [];
 
 	public function __construct( $options ) {
 
 		$this->options = $options;
 
-		$this->process = new BackgroundProcess();
+
+		if ( ! $this->process ) {
+			$this->process = new BackgroundProcess();
+		}
 
 		$this->BackgroundProcessButton();
 
 		add_action( 'admin_notices', [ $this, 'BackgroundProcessIndicator' ], 20 );
+
 	}
 
 	public function BackgroundProcessIndicator() {
@@ -45,13 +53,11 @@ class Batch {
 		$types = $this->options->getOption( 'posts_types', false );
 		if ( ! empty( $types ) ) {
 
-			$args  = [
-				'post_type'      => $types,
-				'posts_per_page' => - 1,
-			];
-			$posts = get_posts( $args );
+
+			$posts = $this->getPostsContainPictures();
 
 			foreach ( $posts as $post ) {
+
 				preg_match_all( '/<img[^>]*>/im', $post->post_content, $images, PREG_SET_ORDER );
 
 				if ( ! empty( $images ) ) {
@@ -60,8 +66,46 @@ class Batch {
 					}
 				}
 			}
+//
+//			if ( ! empty( $this->stack ) ) {
+//
+//				foreach ( $this->stack as $item ) {
+//					$this->process->push_to_queue( $item );
+//				}
+//
+//				$this->process->save();
+//				$this->process->dispatch();
+//			}
 
 		}
+	}
+
+
+	private function getPostsContainPictures() {
+		global $wpdb;
+
+		$types = $this->options->getOption( 'posts_types', false );
+		$types = array_map( function ( $val ) {
+			$val = trim( $val );
+			$val = "'$val'";
+
+			return $val;
+		}, $types );
+		$types = implode( ',', $types );
+
+		$query = "
+            SELECT ID, post_content
+            FROM $wpdb->posts
+            WHERE `post_type` IN ({$types}) AND 
+            `post_status` != 'inherit'
+            AND `post_content` REGEXP '<img.*(?!.*heroine\.lc.*).*>'            
+        ";
+
+		$query = trim( $query );
+
+		$data = $wpdb->get_results( $query );
+
+		return $data;
 	}
 
 	public function postImages( $id ) {
@@ -75,12 +119,11 @@ class Batch {
 
 		$helper = new ExtractHelpers();
 		$data   = $helper->getImagesData( $content );
+
 		foreach ( $data as $item ) {
-			$this->process->push_to_queue( serialize( [ 'item' => $item, 'post' => $id ] ) );
+			$this->stack[] = serialize( [ 'item' => $item, 'post' => $id ] );
 		}
 
-		$this->process->save();
-		$this->process->dispatch();
 	}
 
 }
