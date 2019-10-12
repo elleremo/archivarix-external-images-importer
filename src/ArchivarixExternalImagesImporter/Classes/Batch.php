@@ -19,11 +19,13 @@ class Batch {
 
 		$this->excludeDomains = $this->getExcludeDomains( $options->getOption( 'exclude_domains', false ) );
 		$this->options        = $options;
-		$this->process = new BackgroundProcess();
+		$this->process        = new BackgroundProcess();
 
 		add_action( 'admin_init', [ $this, 'BackgroundProcessButton' ] );
 		add_action( 'admin_notices', [ $this, 'BackgroundProcessIndicator' ], 20 );
 		add_filter( 'ArchivarixExternalImagesImporter__background-process-running', [ $this, 'processRunningFilter' ] );
+
+
 	}
 
 	public function processRunningFilter( $status ) {
@@ -48,7 +50,14 @@ class Batch {
 
 		if ( $this->process->is_process_running() ):?>
             <div class="notice notice-info ">
-                <p><?php _e( 'Background processing is happening now.', 'my-text-domain' ); ?></p>
+                <p><?php
+					echo sprintf(
+						__(
+							'Background processing is happening now. %d images left.',
+							'ArchivarixExternalImagesImporter'
+						),
+						$this->process->remain()
+					); ?></p>
             </div>
 		<?php
 		endif;
@@ -73,16 +82,20 @@ class Batch {
 	}
 
 	public function publishPosts() {
+		$excludeDomainsString = implode( '|', $this->excludeDomains );
+		$types                = $this->options->getOption( 'posts_types', false );
 
-		$types = $this->options->getOption( 'posts_types', false );
 		if ( ! empty( $types ) ) {
-
 
 			$posts = $this->getPostsContainPictures();
 
 			foreach ( $posts as $post ) {
 
-				preg_match_all( '/<img[^>]*>/im', $post->post_content, $images, PREG_SET_ORDER );
+				preg_match_all(
+					"/<img(?!.*{$excludeDomainsString}.*).*>/im",
+					$post->post_content,
+					$images,
+					PREG_SET_ORDER );
 
 				if ( ! empty( $images ) ) {
 					if ( UrlHelper::checkExternalImages( $images ) ) {
@@ -115,7 +128,6 @@ class Batch {
 			return $val;
 		}, $types );
 		$types = implode( ',', $types );
-		$excludeDomainsString = implode( '|', $this->excludeDomains );
 
 		$query = "
             SELECT ID, post_content

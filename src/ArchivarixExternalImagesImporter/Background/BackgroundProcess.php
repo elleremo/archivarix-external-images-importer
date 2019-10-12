@@ -44,6 +44,16 @@ class BackgroundProcess extends WpBackgroundProcess {
 		return false;
 	}
 
+	public function remain() {
+		$batch = $this->get_batch();
+
+		if ( ! empty( $batch->data ) ) {
+			return count( $batch->data );
+		}
+
+		return 0;
+	}
+
 	public function is_process_running() {
 		return parent::is_process_running();
 	}
