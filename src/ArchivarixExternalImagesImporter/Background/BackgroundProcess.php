@@ -45,9 +45,7 @@ class BackgroundProcess extends WpBackgroundProcess {
 	}
 
 	public function is_process_running() {
-		$is_process_running = parent::is_process_running();
-
-		return $is_process_running;
+		return parent::is_process_running();
 	}
 
 }

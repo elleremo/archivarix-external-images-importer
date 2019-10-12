@@ -342,7 +342,7 @@ abstract class WpBackgroundProcess extends WpAsyncRequest {
 	 * @return bool
 	 */
 	protected function memory_exceeded() {
-		$memory_limit   = $this->get_memory_limit() * 0.9; // 90% of max memory
+		$memory_limit   = $this->get_memory_limit() * 0.7; // 90% of max memory
 		$current_memory = memory_get_usage( true );
 		$return         = false;
 

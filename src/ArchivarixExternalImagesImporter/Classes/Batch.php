@@ -13,19 +13,35 @@ class Batch {
 
 	private $stack = [];
 
+	private $excludeDomains = [];
+
 	public function __construct( $options ) {
 
-		$this->options = $options;
+		$this->excludeDomains = $this->getExcludeDomains( $options->getOption( 'exclude_domains', false ) );
+		$this->options        = $options;
+		$this->process = new BackgroundProcess();
 
+		add_action( 'admin_init', [ $this, 'BackgroundProcessButton' ] );
+		add_action( 'admin_notices', [ $this, 'BackgroundProcessIndicator' ], 20 );
+		add_filter( 'ArchivarixExternalImagesImporter__background-process-running', [ $this, 'processRunningFilter' ] );
+	}
 
-		if ( ! $this->process ) {
-			$this->process = new BackgroundProcess();
+	public function processRunningFilter( $status ) {
+		if ( $this->process->is_process_running() ) {
+			return true;
 		}
 
-		$this->BackgroundProcessButton();
+		return false;
+	}
 
-		add_action( 'admin_notices', [ $this, 'BackgroundProcessIndicator' ], 20 );
+	private function getExcludeDomains( $string ) {
+		$exclude   = UrlHelper::getExcludeDomains( $string );
+		$exclude[] = UrlHelper::getHost( home_url() );
+		$exclude   = array_diff( $exclude, [ '' ] );
 
+		return array_map( function ( $val ) {
+			return str_replace( '.', '\\.', $val );
+		}, $exclude );
 	}
 
 	public function BackgroundProcessIndicator() {
@@ -41,9 +57,17 @@ class Batch {
 	public function BackgroundProcessButton() {
 
 		if ( isset( $_GET['ArchivarixExternalImagesImporter-batch'] ) ) {
-
 			if ( current_user_can( 'manage_options' ) ) {
-				$this->publishPosts();
+				if ( ! $this->process->is_process_running() ) {
+					$this->publishPosts();
+
+					$url = add_query_arg(
+						[ 'page' => 'ArchivarixExternalImagesImporter' ],
+						admin_url( 'options-general.php' )
+					);
+
+					wp_redirect( $url, 303 );
+				}
 			}
 		}
 	}
@@ -66,20 +90,19 @@ class Batch {
 					}
 				}
 			}
-//
-//			if ( ! empty( $this->stack ) ) {
-//
-//				foreach ( $this->stack as $item ) {
-//					$this->process->push_to_queue( $item );
-//				}
-//
-//				$this->process->save();
-//				$this->process->dispatch();
-//			}
+
+			if ( ! empty( $this->stack ) ) {
+
+				foreach ( $this->stack as $item ) {
+					$this->process->push_to_queue( $item );
+				}
+
+				$this->process->save();
+				$this->process->dispatch();
+			}
 
 		}
 	}
-
 
 	private function getPostsContainPictures() {
 		global $wpdb;
@@ -92,20 +115,19 @@ class Batch {
 			return $val;
 		}, $types );
 		$types = implode( ',', $types );
+		$excludeDomainsString = implode( '|', $this->excludeDomains );
 
 		$query = "
             SELECT ID, post_content
             FROM $wpdb->posts
             WHERE `post_type` IN ({$types}) AND 
             `post_status` != 'inherit'
-            AND `post_content` REGEXP '<img.*(?!.*heroine\.lc.*).*>'            
+            AND `post_content` REGEXP '<img.*>';          
         ";
 
 		$query = trim( $query );
 
-		$data = $wpdb->get_results( $query );
-
-		return $data;
+		return $wpdb->get_results( $query );
 	}
 
 	public function postImages( $id ) {

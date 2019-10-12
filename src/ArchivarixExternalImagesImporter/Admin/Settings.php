@@ -53,9 +53,15 @@ class Settings {
 		add_filter( 'pre_update_option_' . self::$nameOption, [ $this, 'preUpdateOptionFilter' ], 10, 3 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'adminEnqueueScripts' ] );
 
+		if ( ! apply_filters( 'ArchivarixExternalImagesImporter__background-process-running', true ) ) {
+			if ( 'off' != $this->settings['temporarily_disable_auto_upload'] ) {
 
-		if ( 'off' != $this->settings['temporarily_disable_auto_upload'] ) {
-			add_action( 'ArchivarixExternalImagesImporter__background-process-start-link', [ $this, 'BgButtonLink' ] );
+				add_action(
+					'ArchivarixExternalImagesImporter__background-process-start-link',
+					[ $this, 'BgButtonLink' ]
+				);
+
+			}
 		}
 	}
 

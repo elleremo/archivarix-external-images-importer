@@ -4,6 +4,25 @@ namespace ArchivarixExternalImagesImporter\Classes;
 
 class UrlHelper {
 
+	public static function getExcludeDomains( $string ) {
+
+		$out = [];
+
+		if ( false !== $string ) {
+			$out = explode( PHP_EOL, (string) $string );
+			$out = array_map( function ( $str ) {
+				$str = trim( $str );
+
+				$str = UrlHelper::getHost( $str );
+
+				return $str;
+			}, $out );
+		}
+
+		return $out;
+	}
+
+
 	/**
 	 * Получает имя хоста из url строки и возвращет его,
 	 * если воспользоваться опциональным аргументом то

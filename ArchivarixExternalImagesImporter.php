@@ -47,9 +47,8 @@ class ArchivarixExternalImagesImporter extends Wrap {
 		$this->options = new Data( $this );
 		new Renamer( $this->options );
 
-
-		if ( 'on' === $this->options->getOption( 'temporarily_disable_auto_upload' ) ) {
-
+		if ( 'on' == $this->options->getOption( 'temporarily_disable_auto_upload' ) ) {
+			ini_set( 'max_execution_time', 900 );
 			$insertClass = new InsertPostHook( $this->options );
 			$insertClass->applySavePostFilter();
 

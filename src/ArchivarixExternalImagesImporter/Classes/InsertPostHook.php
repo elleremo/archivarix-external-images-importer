@@ -25,7 +25,7 @@ class InsertPostHook {
 		$this->allowedPosts        = $options->getOption( 'posts_types', [] );
 		$this->maxImageWidth       = $options->getOption( 'image_width', 0 );
 		$this->maxImageHeight      = $options->getOption( 'image_height', 0 );
-		$this->excludeDomains      = $this->getExcludeDomains( $options->getOption( 'exclude_domains', false ) );
+		$this->excludeDomains      = UrlHelper::getExcludeDomains( $options->getOption( 'exclude_domains', false ) );
 		$this->imageSource         = $options->getOption( 'image_source', 'site' );
 		$this->pushStrategy        = $options->getOption( 'push_strategy', 'on_push' );
 
@@ -121,24 +121,6 @@ class InsertPostHook {
 		}
 
 		return false;
-	}
-
-	public function getExcludeDomains( $string ) {
-
-		$out = [];
-
-		if ( false !== $string ) {
-			$out = explode( PHP_EOL, (string) $string );
-			$out = array_map( function ( $str ) {
-				$str = trim( $str );
-
-				$str = UrlHelper::getHost( $str );
-
-				return $str;
-			}, $out );
-		}
-
-		return $out;
 	}
 
 	/**
