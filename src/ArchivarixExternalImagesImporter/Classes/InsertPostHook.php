@@ -16,8 +16,8 @@ class InsertPostHook {
 	private $maxImageHeight;
 	private $imageSource;
 	private $pushStrategy;
-
 	private $asyncTask;
+	private $stop = false;
 
 	public function __construct( $options ) {
 
@@ -37,6 +37,10 @@ class InsertPostHook {
 
 		add_action( 'wp_insert_post', function () {
 			add_action( 'ArchivarixExternalImagesImporter__async', [ $this, 'postHandler' ], 10, 1 );
+		} );
+
+		add_action( 'import_start', function () {
+			$this->stop = true;
 		} );
 	}
 
@@ -209,6 +213,11 @@ class InsertPostHook {
 	}
 
 	public function savePost( $data, $postArray ) {
+
+		if ( $this->stop ) {
+			return $data;
+		}
+
 		if (
 			wp_is_post_revision( $postArray['ID'] ) ||
 			wp_is_post_autosave( $postArray['ID'] ) ||
