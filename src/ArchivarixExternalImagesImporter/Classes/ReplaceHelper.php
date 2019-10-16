@@ -31,18 +31,22 @@ class ReplaceHelper {
 	/**
 	 * Get html attribute by name
 	 *
-	 * @param $str
+	 * @param $string
 	 * @param $atr
 	 *
 	 * @return mixed
 	 */
-	public static function getAttribute( $atr, $str ) {
-		preg_match( "~{$atr}=[\"|'](.*)[\"|']\s~imU", $str, $m );
+	public static function getAttribute( $atr, $string ) {
+		preg_match( "~{$atr}=[\"|'](.*)[\"|']\s~imU", $string, $m );
 		if ( isset( $m[1] ) ) {
 			return $m[1];
 		}
 
 		return '';
+	}
+
+	public static function setAttribute($atr,$value, $string){
+		//TODO regex <\w+(\s)
 	}
 
 }
