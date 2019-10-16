@@ -306,7 +306,7 @@ abstract class WpBackgroundProcess extends WpAsyncRequest {
 					break;
 				}
 
-				if ( $this->get_vars_limit() || $this->vars_exceeded() ) {
+				if ( $this->vars_exceeded() ) {
 					// Batch limits reached.
 					break;
 				}
@@ -420,10 +420,9 @@ abstract class WpBackgroundProcess extends WpAsyncRequest {
 		return apply_filters( $this->identifier . '_time_exceeded', $return );
 	}
 
-
 	protected function vars_exceeded() {
 
-		$finish = $this->start_time + apply_filters( $this->identifier . '_default_vars_limit', 80 );
+		$finish = apply_filters( $this->identifier . '_default_vars_limit', $this->get_vars_limit() );
 		$return = false;
 
 		if ( ( count( $_POST ) + count( $_GET ) + count( $_COOKIE ) ) >= $finish ) {
@@ -440,11 +439,6 @@ abstract class WpBackgroundProcess extends WpAsyncRequest {
 		} else {
 			// Sensible default.
 			$vars_limit = '1000';
-		}
-
-		if ( ! $vars_limit || - 1 === intval( $vars_limit ) ) {
-			// Extended default value.
-			$vars_limit = '2000';
 		}
 
 		return (int) $vars_limit;
