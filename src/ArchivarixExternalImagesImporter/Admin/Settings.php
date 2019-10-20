@@ -165,7 +165,8 @@ class Settings {
 				?>
             </h2>
 
-            <form id="ctl-options" action="<?php echo esc_url( admin_url( 'options.php' ) ); ?>" method="post">
+            <form id="ArchivarixExternalImagesImporter-options"
+                  action="<?php echo esc_url( admin_url( 'options.php' ) ); ?>" method="post">
 				<?php
 				do_settings_sections( self::$page ); // Sections with options.
 				settings_fields( self::$optionGroup ); // Hidden protection fields.
@@ -189,6 +190,7 @@ class Settings {
 		if ( ! $this->isCtlOptionsScreen() ) {
 			return;
 		}
+
 		add_settings_section(
 			'domain_settings_section',
 			__( 'Domain settings', 'ArchivarixExternalImagesImporter' ),
@@ -650,6 +652,19 @@ class Settings {
 			return;
 		}
 
+		$jsUrl  = plugin_dir_url( $this->state->filePath ) . $this->state->jsPatch;
+		$cssUrl = plugin_dir_url( $this->state->filePath ) . $this->state->cssPatch;
+
+		wp_enqueue_script(
+			'ArchivarixExternalImagesImporter__admin-tabs',
+			"{$jsUrl}admin-tabs.min.js",
+			[ 'jquery' ]
+		);
+
+		wp_enqueue_style(
+			'ArchivarixExternalImagesImporter__admin-tabs',
+			"{$cssUrl}admin-tabs.css",
+		);
 	}
 
 	/**
