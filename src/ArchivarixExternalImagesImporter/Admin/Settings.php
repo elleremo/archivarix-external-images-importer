@@ -54,7 +54,7 @@ class Settings {
 		add_action( 'admin_enqueue_scripts', [ $this, 'adminEnqueueScripts' ] );
 
 		if ( ! apply_filters( 'ArchivarixExternalImagesImporter__background-process-running', true ) ) {
-			if ( 'off' != $this->settings['temporarily_disable_auto_upload'] ) {
+			if ( 'off' != $this->settings['temporarily_disable_auto_download'] ) {
 
 				add_action(
 					'ArchivarixExternalImagesImporter__background-process-start-link',
@@ -344,7 +344,7 @@ class Settings {
 				'supplemental' => __( 'Method of loading files when saving a post, immediately or after', 'ArchivarixExternalImagesImporter' ),
 				'default'      => 'on_push',
 			],
-			'temporarily_disable_auto_upload' => [
+			'temporarily_disable_auto_download' => [
 				'label'        => __( 'Auto download', 'ArchivarixExternalImagesImporter' ),
 				'section'      => 'downloading_settings_section',
 				'type'         => 'select',
