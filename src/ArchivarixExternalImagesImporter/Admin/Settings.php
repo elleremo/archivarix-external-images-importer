@@ -239,7 +239,7 @@ class Settings {
 			return $out;
 		};
 		$this->formFields = [
-			'base_url'                        => [
+			'base_url'                          => [
 				'label'        => __( 'Base URL:', 'ArchivarixExternalImagesImporter' ),
 				'section'      => 'domain_settings_section',
 				'type'         => 'text',
@@ -248,16 +248,16 @@ class Settings {
 				'supplemental' => '',
 				'default'      => home_url(),
 			],
-			'exclude_domains'                 => [
+			'exclude_domains'                   => [
 				'label'        => __( 'Exclude Domains:', 'ArchivarixExternalImagesImporter' ),
 				'section'      => 'domain_settings_section',
 				'type'         => 'textarea',
 				'placeholder'  => '',
 				'helper'       => '',
-				'supplemental' => '',
+				'supplemental' => __( 'Each value with a new line', 'ArchivarixExternalImagesImporter' ),
 				'default'      => '',
 			],
-			'posts_types'                     => [
+			'posts_types'                       => [
 				'label'        => __( 'Posts types:', 'ArchivarixExternalImagesImporter' ),
 				'section'      => 'post_types_settings_section',
 				'type'         => 'multiple',
@@ -265,9 +265,9 @@ class Settings {
 				'placeholder'  => '',
 				'helper'       => '',
 				'supplemental' => '',
-				'default'      => '',
+				'default'      => [ 'post', 'page' ],
 			],
-			'image_alt'                       => [
+			'image_alt'                         => [
 				'label'        => __( 'Alt Name:', 'ArchivarixExternalImagesImporter' ),
 				'section'      => 'file_settings_section',
 				'type'         => 'text',
@@ -276,7 +276,7 @@ class Settings {
 				'supplemental' => '',
 				'default'      => '%day%-%month%-%year%',
 			],
-			'image_name'                      => [
+			'image_name'                        => [
 				'label'        => __( 'Image Name:', 'ArchivarixExternalImagesImporter' ),
 				'section'      => 'file_settings_section',
 				'type'         => 'text',
@@ -285,25 +285,25 @@ class Settings {
 				'supplemental' => '',
 				'default'      => '%filename%-%random%',
 			],
-			'image_width'                     => [
+			'image_width'                       => [
 				'label'        => __( 'Max width:', 'ArchivarixExternalImagesImporter' ),
 				'section'      => 'image_size_settings_section',
 				'type'         => 'number',
 				'placeholder'  => '',
 				'helper'       => '',
-				'supplemental' => __( 'Max width upload image', 'ArchivarixExternalImagesImporter' ),
+				'supplemental' => __( 'Max width download image', 'ArchivarixExternalImagesImporter' ),
 				'default'      => '',
 			],
-			'image_height'                    => [
+			'image_height'                      => [
 				'label'        => __( 'Max height:', 'ArchivarixExternalImagesImporter' ),
 				'section'      => 'image_size_settings_section',
 				'type'         => 'number',
 				'placeholder'  => '',
 				'helper'       => '',
-				'supplemental' => __( 'Max height upload image', 'ArchivarixExternalImagesImporter' ),
+				'supplemental' => __( 'Max height download image', 'ArchivarixExternalImagesImporter' ),
 				'default'      => '',
 			],
-			'replace_image'                   => [
+			'replace_image'                     => [
 				'label'        => __( 'Image action:', 'ArchivarixExternalImagesImporter' ),
 				'section'      => 'downloading_settings_section',
 				'type'         => 'select',
@@ -316,7 +316,7 @@ class Settings {
 				'supplemental' => __( 'Action if no image is found', 'ArchivarixExternalImagesImporter' ),
 				'default'      => '',
 			],
-			'image_source'                    => [
+			'image_source'                      => [
 				'label'        => __( 'Image source:', 'ArchivarixExternalImagesImporter' ),
 				'section'      => 'downloading_settings_section',
 				'type'         => 'select',
@@ -331,7 +331,7 @@ class Settings {
 				'supplemental' => '',
 				'default'      => '',
 			],
-			'push_strategy'                   => [
+			'push_strategy'                     => [
 				'label'        => __( 'Push strategy:', 'ArchivarixExternalImagesImporter' ),
 				'section'      => 'downloading_settings_section',
 				'type'         => 'select',
