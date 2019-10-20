@@ -24,8 +24,8 @@ class ReplaceHelper {
 		return $string;
 	}
 
-	public static function replaceAttributeValue( $attr, $replace, $string ) {
-		return preg_replace( "/{$attr}=[\"'].*[\"']/iU", "{$attr}='{$replace}'", $string );
+	public static function replaceAttributeValue( $atr, $replace, $string ) {
+		return preg_replace( "/{$atr}=[\"'].*[\"']/iU", "{$atr}='{$replace}'", $string );
 	}
 
 	/**
@@ -46,7 +46,8 @@ class ReplaceHelper {
 	}
 
 	public static function setAttribute($atr,$value, $string){
-		//TODO regex <\w+(\s)
+		//TODO regex
+		return preg_replace( "/<(\w+\s)/iU", "$0 {$atr}='{$value}'", $string );
 	}
 
 }
