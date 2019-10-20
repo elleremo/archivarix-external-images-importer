@@ -45,9 +45,8 @@ class ReplaceHelper {
 		return '';
 	}
 
-	public static function setAttribute($atr,$value, $string){
-		//TODO regex
-		return preg_replace( "/<(\w+\s)/iU", "$0 {$atr}='{$value}'", $string );
+	public static function setAttribute( $atr, $value, $string ) {
+		return preg_replace( "/<(\w+\s)/iU", "$0{$atr}='{$value}' ", $string );
 	}
 
 }

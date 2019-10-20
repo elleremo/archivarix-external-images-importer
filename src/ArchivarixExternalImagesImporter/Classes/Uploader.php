@@ -24,10 +24,17 @@ class Uploader {
 	}
 
 	public function sideLoadWrapper( $url, $postID = 0, $desc = null ) {
-		$id = media_sideload_image( $url, $postID, $desc, 'id' );
+
+		$id = $this->findByUrl( $url );
+
+		if ( false == $id ) {
+			$id = media_sideload_image( $url, $postID, $desc, 'id' );
+		} else {
+			return $id;
+		}
 
 		if ( ! is_wp_error( $id ) ) {
-
+			update_post_meta( $id, 'ArchivarixExternalImagesImporter_source_url', $url );
 			$handler = new ImageFileHandlers( $id );
 			$sizes   = $handler->imageSize;
 
@@ -50,6 +57,27 @@ class Uploader {
 		}
 
 		return $id;
+	}
+
+	private function findByUrl( $url ) {
+		global $wpdb;
+
+		$url   = trim( $url );
+		$query = "
+		SELECT post_id FROM {$wpdb->postmeta} 
+		WHERE meta_key = 'ArchivarixExternalImagesImporter_source_url' 
+		AND meta_value = '%s'
+		LIMIT 1;
+		";
+		$query = trim( $query );
+
+		$out = $wpdb->get_var( $wpdb->prepare( $query, $url ) );
+
+		if ( empty( $out ) ) {
+			return false;
+		}
+
+		return $out;
 	}
 
 	public function errorHandler( $var ) {

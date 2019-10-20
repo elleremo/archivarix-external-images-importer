@@ -197,6 +197,11 @@ class InsertPostHook {
 				$src    = wp_get_attachment_image_src( $idImage, self::$baseSize );
 				$string = ReplaceHelper::replaceAttributeValue( 'src', $src[0], $string );
 				$meta   = wp_get_attachment_metadata( $idImage );
+				$alt    = get_post_meta( $idImage, '_wp_attachment_image_alt', true );
+
+				if ( ! empty( $alt ) ) {
+					$string = ReplaceHelper::setAttribute( 'alt', $alt, $string );
+				}
 
 				if ( ! empty( $srcset ) ) {
 					$sizes  = wp_get_attachment_image_sizes( $idImage, 'full' );
