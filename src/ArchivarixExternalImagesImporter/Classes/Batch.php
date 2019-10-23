@@ -24,8 +24,6 @@ class Batch {
 		add_action( 'admin_init', [ $this, 'BackgroundProcessButton' ] );
 		add_action( 'admin_notices', [ $this, 'BackgroundProcessIndicator' ], 20 );
 		add_filter( 'ArchivarixExternalImagesImporter__background-process-running', [ $this, 'processRunningFilter' ] );
-
-
 	}
 
 	public function processRunningFilter( $status ) {
@@ -74,6 +72,8 @@ class Batch {
 						[ 'page' => 'ArchivarixExternalImagesImporter' ],
 						admin_url( 'options-general.php' )
 					);
+
+					do_action( 'ArchivarixExternalImagesImporter__batch-start' );
 
 					wp_redirect( $url, 303 );
 				}

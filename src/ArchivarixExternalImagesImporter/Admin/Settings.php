@@ -223,6 +223,16 @@ class Settings {
 			self::$page
 		);
 
+		add_settings_section(
+			'stat_section',
+			__( 'Statistics', 'ArchivarixExternalImagesImporter' ),
+			[ $this, 'statPage' ],
+			self::$page );
+
+	}
+
+	public function statPage() {
+		do_action( 'ArchivarixExternalImagesImporter__statistic-page' );
 	}
 
 	/**
