@@ -49,6 +49,7 @@ class InsertPostHook {
 	}
 
 	public function batchPayloadData( $string ) {
+
 		$data = unserialize( $string );
 
 		if ( is_numeric( $data['post'] ) ) {
@@ -80,6 +81,8 @@ class InsertPostHook {
 							$query = $wpdb->prepare( $query, $search, $replace );
 
 							$wpdb->query( $query );
+
+							do_action( 'ArchivarixExternalImagesImporter__download-image-end', $data['item']['src'] );
 						}
 					}
 				}
@@ -186,6 +189,8 @@ class InsertPostHook {
 			$idImage = $this->switchSource( $uploader, $searchUrl );
 
 			if ( is_wp_error( $idImage ) ) {
+				do_action( 'ArchivarixExternalImagesImporter__image-string-delete', $string );
+
 				if ( 'keep' === $this->imageNotFoundAction ) {
 					return $string;
 				} else {

@@ -32,6 +32,7 @@ use ArchivarixExternalImagesImporter\Classes\AddCdn;
 use ArchivarixExternalImagesImporter\Classes\Batch;
 use ArchivarixExternalImagesImporter\Classes\InsertPostHook;
 use ArchivarixExternalImagesImporter\Classes\Renamer;
+use ArchivarixExternalImagesImporter\Classes\Stats;
 
 class ArchivarixExternalImagesImporter extends Wrap {
 	public $version = '1.0.0';
@@ -52,9 +53,12 @@ class ArchivarixExternalImagesImporter extends Wrap {
 			$insertClass = new InsertPostHook( $this->options );
 			$insertClass->applySavePostFilter();
 
+			new Stats();
+
 			new addCdn( $this->options );
 
 			new Batch( $this->options );
+
 		}
 	}
 

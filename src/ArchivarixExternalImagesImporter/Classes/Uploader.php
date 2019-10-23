@@ -25,6 +25,8 @@ class Uploader {
 
 	public function sideLoadWrapper( $url, $postID = 0, $desc = null ) {
 
+		do_action( 'ArchivarixExternalImagesImporter__download-image-start', $url );
+
 		$id = $this->findByUrl( $url );
 
 		if ( false == $id ) {
@@ -54,6 +56,8 @@ class Uploader {
 
 			$handler->regenerateAttachmentMeta( $id );
 
+		} else {
+			do_action( 'ArchivarixExternalImagesImporter__download-image-not-found', $url );
 		}
 
 		return $id;

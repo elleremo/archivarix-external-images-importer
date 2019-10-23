@@ -16,7 +16,8 @@ class BackgroundProcess extends WpBackgroundProcess {
 	 * @inheritDoc
 	 */
 	protected function task( $data ) {
-		do_action( 'ArchivarixExternalImagesImporter__bath-item', $data );
+		$batch = $this->get_batch();
+		do_action( 'ArchivarixExternalImagesImporter__bath-item', $data, $batch->data );
 
 		return false;
 	}
