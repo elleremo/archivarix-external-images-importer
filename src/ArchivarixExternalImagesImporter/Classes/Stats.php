@@ -31,25 +31,45 @@ class Stats {
         <div class="form-table" role="presentation">
 			<?php if ( ! empty( $options['import_start_time'] ) ): ?>
                 <p>
-					<?php _e( 'Time start of import:', 'ArchivarixExternalImagesImporter' ); ?>
+                    <strong>
+						<?php _e( 'Time start of import:', 'ArchivarixExternalImagesImporter' ); ?>
+                    </strong>
                     <em><?php echo $options['import_start_time']; ?></em>
                 </p>
-                <p><?php _e( 'Number of images:', 'ArchivarixExternalImagesImporter' ); ?>
+                <p>
+                    <strong>
+						<?php _e( 'Number of images:', 'ArchivarixExternalImagesImporter' ); ?>
+                    </strong>
                     <em><?php echo $options['all_images']; ?></em>
                 </p>
-                <p><?php _e( 'Number of images downloaded:', 'ArchivarixExternalImagesImporter' ); ?>
+                <p>
+                    <strong>
+						<?php _e( 'Number of images downloaded:', 'ArchivarixExternalImagesImporter' ); ?>
+                    </strong>
                     <em><?php echo $options['downloaded_image']; ?></em>
                 </p>
-                <p><?php _e( 'Number of images downloaded on source:', 'ArchivarixExternalImagesImporter' ); ?>
+                <p>
+                    <strong>
+						<?php _e( 'Number of images downloaded on source:', 'ArchivarixExternalImagesImporter' ); ?>
+                    </strong>
                     <em><?php echo $options['downloaded_image_url']; ?></em>
                 </p>
-                <p><?php _e( 'Number of images downloaded on web archive:', 'ArchivarixExternalImagesImporter' ); ?>
+                <p>
+                    <strong>
+						<?php _e( 'Number of images downloaded on web archive:', 'ArchivarixExternalImagesImporter' ); ?>
+                    </strong>
                     <em><?php echo $options['downloaded_image_archive']; ?></em>
                 </p>
-                <p><?php _e( 'Number of download errors:', 'ArchivarixExternalImagesImporter' ); ?>
+                <p>
+                    <strong>
+						<?php _e( 'Number of download errors:', 'ArchivarixExternalImagesImporter' ); ?>
+                    </strong>
                     <em><?php echo $options['downloaded_image_fails']; ?></em>
                 </p>
-                <p><?php _e( 'Number of deleted images:', 'ArchivarixExternalImagesImporter' ); ?>
+                <p>
+                    <strong>
+						<?php _e( 'Number of deleted images:', 'ArchivarixExternalImagesImporter' ); ?>
+                    </strong>
                     <em><?php echo $options['downloaded_image_fails_deleted']; ?></em>
                 </p>
 			<?php else: ?>
