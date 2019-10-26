@@ -27,6 +27,12 @@ class Uploader {
 
 		do_action( 'ArchivarixExternalImagesImporter__download-image-start', $url );
 
+		if ( UrlHelper::getHost( home_url() ) == UrlHelper::getHost( $url ) ) {
+			if(  $this->checkExistFileImage($url)){
+				///
+			}
+		}
+
 		$id = $this->findByUrl( $url );
 
 		if ( false == $id ) {
