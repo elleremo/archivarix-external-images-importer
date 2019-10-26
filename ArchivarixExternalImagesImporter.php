@@ -56,6 +56,7 @@ class ArchivarixExternalImagesImporter extends Wrap {
 			new addCdn( $this->options );
 			new Batch( $this->options );
 		}
+
 	}
 
 }

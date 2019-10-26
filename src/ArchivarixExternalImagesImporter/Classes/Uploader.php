@@ -63,6 +63,18 @@ class Uploader {
 		return $id;
 	}
 
+
+	private function checkExistFileImage( $url ) {
+		$query  = wp_remote_head( $url );
+		$status = wp_remote_retrieve_response_code( $query );
+
+		if ( 200 == $status ) {
+			return true;
+		}
+
+		return false;
+	}
+
 	private function findByUrl( $url ) {
 		global $wpdb;
 
