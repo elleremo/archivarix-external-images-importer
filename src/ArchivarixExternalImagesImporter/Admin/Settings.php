@@ -673,7 +673,7 @@ class Settings {
 
 		wp_enqueue_style(
 			'ArchivarixExternalImagesImporter__admin-tabs',
-			"{$cssUrl}admin-tabs.css",
+			"{$cssUrl}admin-tabs.css"
 		);
 	}
 
