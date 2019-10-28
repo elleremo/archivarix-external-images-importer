@@ -131,6 +131,33 @@ class InsertPostHook {
 	}
 
 	/**
+	 * Пытается найти записи медиафайлов в бд
+	 *
+	 * @param $search
+	 *
+	 * @return int
+	 */
+	public function brokenImagesCollector( $search ) {
+		global $wpdb;
+
+		$query = "
+		SELECT post_id FROM {$wpdb->postmeta} 
+		WHERE meta_value LIKE '%{$search}%' 
+		AND meta_key = '_wp_attachment_metadata' 
+		LIMIT 1";
+
+		$query = trim( $query );
+
+		$out = $wpdb->get_var( $query );
+
+		if ( empty( $out ) ) {
+			return false;
+		}
+
+		return (int) $out;
+	}
+
+	/**
 	 * @param $uploader Uploader
 	 * @param $searchUrl
 	 *
@@ -140,7 +167,7 @@ class InsertPostHook {
 
 		// Пытамся востановить картинку из вебархива если на сайте она больше не пингуется
 		if ( UrlHelper::getHost( home_url() ) == UrlHelper::getHost( $searchUrl ) ) {
-			if (! Uploader::checkExistFileImage( $searchUrl ) ) {
+			if ( ! Uploader::checkExistFileImage( $searchUrl ) ) {
 
 				// загрузка из вебархива
 				$timeStamp = strtotime( $this->post['post_date'] );
