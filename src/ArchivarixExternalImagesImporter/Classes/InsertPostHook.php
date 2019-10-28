@@ -173,9 +173,13 @@ class InsertPostHook {
 		// Пытамся востановить картинку из вебархива если на сайте она больше не пингуется
 		if ( UrlHelper::getHost( home_url() ) == UrlHelper::getHost( $searchUrl ) ) {
 			if ( ! Uploader::checkExistFileImage( $searchUrl ) ) {
+				$deleteId = $this->brokenImagesCollector( $searchUrl );
+				wp_delete_attachment( $deleteId, true );
+
 				// загрузка из вебархива
 				$timeStamp = strtotime( $this->post['post_date'] );
-				$idImage = $uploader->loadInWebArchive( $searchUrl, $timeStamp, $this->post['ID'] );
+				$idImage   = $uploader->loadInWebArchive( $searchUrl, $timeStamp, $this->post['ID'] );
+
 				return $idImage;
 			} else {
 				return true;
