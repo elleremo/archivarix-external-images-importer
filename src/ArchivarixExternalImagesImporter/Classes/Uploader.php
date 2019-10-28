@@ -27,12 +27,6 @@ class Uploader {
 
 		do_action( 'ArchivarixExternalImagesImporter__download-image-start', $url );
 
-		if ( UrlHelper::getHost( home_url() ) == UrlHelper::getHost( $url ) ) {
-			if(  $this->checkExistFileImage($url)){
-				///
-			}
-		}
-
 		$id = $this->findByUrl( $url );
 
 		if ( false == $id ) {
@@ -70,7 +64,7 @@ class Uploader {
 	}
 
 
-	private function checkExistFileImage( $url ) {
+	public static function checkExistFileImage( $url ) {
 		$query  = wp_remote_head( $url );
 		$status = wp_remote_retrieve_response_code( $query );
 

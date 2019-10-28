@@ -36,7 +36,7 @@ class Batch {
 
 	private function getExcludeDomains( $string ) {
 		$exclude   = UrlHelper::getExcludeDomains( $string );
-		$exclude[] = UrlHelper::getHost( home_url() );
+
 		$exclude   = array_diff( $exclude, [ '' ] );
 
 		return array_map( function ( $val ) {

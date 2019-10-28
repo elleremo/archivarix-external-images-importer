@@ -138,6 +138,18 @@ class InsertPostHook {
 	 */
 	public function switchSource( $uploader, $searchUrl ) {
 
+		// Пытамся востановить картинку из вебархива если на сайте она больше не пингуется
+		if ( UrlHelper::getHost( home_url() ) == UrlHelper::getHost( $searchUrl ) ) {
+			if (! Uploader::checkExistFileImage( $searchUrl ) ) {
+
+				// загрузка из вебархива
+				$timeStamp = strtotime( $this->post['post_date'] );
+
+				$idImage = $uploader->loadInWebArchive( $searchUrl, $timeStamp, $this->post['ID'] );
+
+				return $idImage;
+			}
+		}
 
 		if ( 'web_archive' == $this->imageSource ) {
 
