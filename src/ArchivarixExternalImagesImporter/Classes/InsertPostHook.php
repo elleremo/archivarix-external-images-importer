@@ -67,14 +67,19 @@ class InsertPostHook {
 			$pid        = $this->post['ID'];
 
 			if ( isset( $this->post['post_type'] ) && in_array( $this->post['post_type'], $this->allowedPosts ) ) {
+
 				if ( isset( $data['item']['src'] ) && ! empty( $data['item']['src'] ) ) {
+
 					if ( ReplaceHelper::checkReplace( $data['item']['src'] ) ) {
 						$search = $data['item']['raw'];
+
 						if ( false !== mb_stripos( $this->post['post_content'], $search ) ) {
+
 							$replace = $this->ReplaceUpload(
 								$data['item']['raw'],
 								$data['item']['src'],
-								$data['item']['srcset'] );
+								$data['item']['srcset']
+							);
 
 							$query = "UPDATE $wpdb->posts SET post_content = REPLACE(post_content, '%s', '%s') WHERE ID = {$pid};";
 
@@ -168,13 +173,12 @@ class InsertPostHook {
 		// Пытамся востановить картинку из вебархива если на сайте она больше не пингуется
 		if ( UrlHelper::getHost( home_url() ) == UrlHelper::getHost( $searchUrl ) ) {
 			if ( ! Uploader::checkExistFileImage( $searchUrl ) ) {
-
 				// загрузка из вебархива
 				$timeStamp = strtotime( $this->post['post_date'] );
-
 				$idImage = $uploader->loadInWebArchive( $searchUrl, $timeStamp, $this->post['ID'] );
-
 				return $idImage;
+			} else {
+				return true;
 			}
 		}
 
@@ -226,6 +230,10 @@ class InsertPostHook {
 			$uploader = new Uploader( $this->maxImageWidth, $this->maxImageHeight );
 
 			$idImage = $this->switchSource( $uploader, $searchUrl );
+
+			if ( true === $idImage ) {
+				return $string;
+			}
 
 			if ( is_wp_error( $idImage ) ) {
 				do_action( 'ArchivarixExternalImagesImporter__image-string-delete', $string );

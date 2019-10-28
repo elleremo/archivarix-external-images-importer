@@ -7,6 +7,11 @@ namespace ArchivarixExternalImagesImporter\Classes;
 class ReplaceHelper {
 
 	public static function checkReplace( $string ) {
+
+		if ( false == apply_filters( 'ArchivarixExternalImagesImporter__skip-local-images', false ) ) {
+			return true;
+		}
+
 		$siteHost = UrlHelper::getHost( site_url() );
 		if ( false === stripos( $string, $siteHost ) ) {
 			return true;

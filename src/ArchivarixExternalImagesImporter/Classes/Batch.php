@@ -21,9 +21,21 @@ class Batch {
 		$this->options        = $options;
 		$this->process        = new BackgroundProcess();
 
+		add_filter( 'ArchivarixExternalImagesImporter__skip-local-images', [ $this, 'skipLocalImages' ] );
 		add_action( 'admin_init', [ $this, 'BackgroundProcessButton' ] );
 		add_action( 'admin_notices', [ $this, 'BackgroundProcessIndicator' ], 20 );
 		add_filter( 'ArchivarixExternalImagesImporter__background-process-running', [ $this, 'processRunningFilter' ] );
+	}
+
+	public function skipLocalImages() {
+		$status = $this->options->getOption( 'recovery_local_images', 'yes' );
+
+		if ( 'yes' == $status ) {
+			return false;
+		}
+
+		return true;
+
 	}
 
 	public function processRunningFilter( $status ) {
@@ -35,9 +47,8 @@ class Batch {
 	}
 
 	private function getExcludeDomains( $string ) {
-		$exclude   = UrlHelper::getExcludeDomains( $string );
-
-		$exclude   = array_diff( $exclude, [ '' ] );
+		$exclude = UrlHelper::getExcludeDomains( $string );
+		$exclude = array_diff( $exclude, [ '' ] );
 
 		return array_map( function ( $val ) {
 			return str_replace( '.', '\\.', $val );
@@ -85,6 +96,13 @@ class Batch {
 		$excludeDomainsString = implode( '|', $this->excludeDomains );
 		$types                = $this->options->getOption( 'posts_types', false );
 
+		if ( empty( $excludeDomainsString ) ) {
+			$pattern = "<img.*>";
+		} else {
+			$pattern = "<img(?!.*{$excludeDomainsString}.*).*>";
+		}
+
+
 		if ( ! empty( $types ) ) {
 
 			$posts = $this->getPostsContainPictures();
@@ -92,13 +110,15 @@ class Batch {
 			foreach ( $posts as $post ) {
 
 				preg_match_all(
-					"/<img(?!.*{$excludeDomainsString}.*).*>/im",
+					"/{$pattern}/im",
 					$post->post_content,
 					$images,
 					PREG_SET_ORDER );
 
 				if ( ! empty( $images ) ) {
-					if ( UrlHelper::checkExternalImages( $images ) ) {
+					$skipLocalImages = apply_filters( 'ArchivarixExternalImagesImporter__skip-local-images', false );
+
+					if ( UrlHelper::checkExternalImages( $images ) || false == $skipLocalImages ) {
 						$this->postImages( $post->ID );
 					}
 				}
@@ -132,8 +152,9 @@ class Batch {
 		$query = "
             SELECT ID, post_content
             FROM $wpdb->posts
-            WHERE `post_type` IN ({$types}) AND 
-            `post_status` != 'inherit'
+            WHERE `post_type` IN ({$types})
+            AND `post_status` != 'inherit'
+            AND `post_status` != 'trash'
             AND `post_content` REGEXP '<img.*>';          
         ";
 

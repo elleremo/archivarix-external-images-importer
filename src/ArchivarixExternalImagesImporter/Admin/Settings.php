@@ -328,6 +328,19 @@ class Settings {
 				'supplemental' => __( 'Action if no image is found', 'ArchivarixExternalImagesImporter' ),
 				'default'      => '',
 			],
+			'recovery_local_images'             => [
+				'label'        => __( 'Recovery local images:', 'ArchivarixExternalImagesImporter' ),
+				'section'      => 'downloading_settings_section',
+				'type'         => 'select',
+				'options'      => [
+					'yes' => __( 'Yes', 'ArchivarixExternalImagesImporter' ),
+					'no'  => __( 'No', 'ArchivarixExternalImagesImporter' )
+				],
+				'placeholder'  => '',
+				'helper'       => '',
+				'supplemental' => __( 'Try to restore images of this site media library', 'ArchivarixExternalImagesImporter' ),
+				'default'      => 'yes',
+			],
 			'image_source'                      => [
 				'label'        => __( 'Image source:', 'ArchivarixExternalImagesImporter' ),
 				'section'      => 'downloading_settings_section',
