@@ -91,7 +91,6 @@ class Stats {
 	}
 
 	public function onStart() {
-		$this->initObj();
 		update_option( $this->field, $this->obj );
 	}
 
