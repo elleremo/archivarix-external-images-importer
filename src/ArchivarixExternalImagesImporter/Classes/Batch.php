@@ -77,14 +77,15 @@ class Batch {
 		if ( isset( $_GET['ArchivarixExternalImagesImporter-batch'] ) ) {
 			if ( current_user_can( 'manage_options' ) ) {
 				if ( ! $this->process->is_process_running() ) {
+
+					do_action( 'ArchivarixExternalImagesImporter__batch-start' );
+
 					$this->publishPosts();
 
 					$url = add_query_arg(
 						[ 'page' => 'ArchivarixExternalImagesImporter' ],
 						admin_url( 'options-general.php' )
 					);
-
-					do_action( 'ArchivarixExternalImagesImporter__batch-start' );
 
 					wp_redirect( $url, 303 );
 				}

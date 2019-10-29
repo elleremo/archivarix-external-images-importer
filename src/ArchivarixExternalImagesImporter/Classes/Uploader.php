@@ -25,11 +25,11 @@ class Uploader {
 
 	public function sideLoadWrapper( $url, $postID = 0, $desc = null ) {
 
+		do_action( 'ArchivarixExternalImagesImporter__download-image-start', $url );
+
 		$id = $this->findByUrl( $url );
 
 		if ( false == $id ) {
-			do_action( 'ArchivarixExternalImagesImporter__download-image-start', $url );
-
 			$id = media_sideload_image( $url, $postID, $desc, 'id' );
 		} else {
 			return $id;

@@ -91,7 +91,7 @@ class Stats {
 	}
 
 	public function onStart() {
-		update_option( $this->field, $this->obj );
+		delete_option( $this->field );
 	}
 
 	private function initObj() {
@@ -112,6 +112,7 @@ class Stats {
 	}
 
 	public function onUploadImage( $url ) {
+
 		$this->obj['downloaded_image'] = $this->obj['downloaded_image'] + 1;
 
 		if ( strstr( $url, 'web.archive.org' ) ) {

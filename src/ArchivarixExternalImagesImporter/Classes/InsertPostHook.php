@@ -240,11 +240,11 @@ class InsertPostHook {
 			}
 
 			if ( is_wp_error( $idImage ) ) {
-				do_action( 'ArchivarixExternalImagesImporter__image-string-delete', $string );
 
 				if ( 'keep' === $this->imageNotFoundAction ) {
 					return $string;
 				} else {
+					do_action( 'ArchivarixExternalImagesImporter__image-string-delete', $string );
 					return '';
 				}
 			}
