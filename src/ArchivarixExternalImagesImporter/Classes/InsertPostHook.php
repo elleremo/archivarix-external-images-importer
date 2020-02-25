@@ -126,10 +126,9 @@ class InsertPostHook {
 
 			$content = $this->payload( $content, $data );
 
-			$o = wp_update_post( [ 'ID' => $id, 'post_content' => $content ] );
+			$out = wp_update_post( [ 'ID' => $id, 'post_content' => $content ] );
 
-
-			return $o;
+			return $out;
 		}
 
 		return false;
