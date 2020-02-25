@@ -132,6 +132,7 @@ class Stats {
 
 	public function deactivate( $url ) {
 		if ( $this->status ) {
+         	        $this->obj['all_images'] = 0;
 			update_option( $this->field, $this->obj );
 		}
 	}
