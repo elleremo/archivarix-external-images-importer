@@ -33,6 +33,10 @@ class ReplaceHelper {
 		return preg_replace( "/{$atr}=[\"'].*[\"']/iU", "{$atr}='{$replace}'", $string );
 	}
 
+	public static function removeAttribute( $atr, $string ) {
+		return preg_replace( "/{$atr}=[\"'].*[\"']/iU", "", $string );
+	}
+
 	/**
 	 * Get html attribute by name
 	 *
